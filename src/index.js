@@ -215,13 +215,19 @@ export default class extends Component {
     // set the current state
     const state = this.state || { width: 0, height: 0, offset: { x: 0, y: 0 } }
 
+    const { width, height } = Dimensions.get('window')
+    const nodeWidth = props.width || state.width || width
+    const nodeHeight = props.height || state.height || height
+
     const initState = {
       autoplayEnd: false,
       loopJump: false,
+      dir: props.horizontal === false ? 'y' : 'x',
+      width: nodeWidth,
+      height: nodeHeight,
+      total: props.children ? props.children.length || 1 : 0,
       offset: {}
-    }
-
-    initState.total = props.children ? props.children.length || 1 : 0
+    };
 
     if (state.total === initState.total && !updateIndex) {
       // retain the index
@@ -230,30 +236,9 @@ export default class extends Component {
       initState.index = initState.total > 1 ? Math.min(props.index, initState.total - 1) : 0
     }
 
-    // Default: horizontal
-    const { width, height } = Dimensions.get('window')
-
-    initState.dir = props.horizontal === false ? 'y' : 'x'
-
-    if (props.width) {
-      initState.width = props.width
-    } else if (this.state && this.state.width){
-      initState.width = this.state.width
-    } else {
-      initState.width = width;
-    }
-
-    if (props.height) {
-      initState.height = props.height
-    } else if (this.state && this.state.height){
-      initState.height = this.state.height
-    } else {
-      initState.height = height;
-    }
-
     initState.offset[initState.dir] = initState.dir === 'y'
-      ? height * props.index
-      : width * props.index
+      ? initState.height * props.index
+      : initState.width * props.index
 
 
     this.internals = {
